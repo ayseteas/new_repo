@@ -122,6 +122,13 @@ public class UserMapper {
                 .build();
     }
 
+    public User mapStudentRequestToUpdateUser(StudentRequest studentRequest, Long userId){
+        //we called another mapper to not duplicate code
+        User user = mapStudentRequestToUser(studentRequest);
+        user.setId(userId);
+        return user;
+    }
+
 
 
 
