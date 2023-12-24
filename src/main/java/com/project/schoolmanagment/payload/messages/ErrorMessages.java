@@ -42,6 +42,14 @@ public class ErrorMessages {
     public static final String NOT_FOUND_ADVISOR_MESSAGE = "Error: Advisor Teacher with id %s not found" ;
     public static final String ALREADY_EXIST_ADVISOR_MESSAGE = "Error: Advisor Teacher with id %s is already exist" ;
 
+    //student info
+    public static final String STUDENT_INFO_NOT_FOUND = "Error: Student Info with id %d not found" ;
+    public static final String STUDENT_INFO_NOT_FOUND_BY_STUDENT_ID= "Error: Student Info with  student id %d not found" ;
+
+    //meet
+    public static final String MEET_NOT_FOUND_MESSAGE = "Error: Meet with id %d not found" ;
+    public static final String MEET_HOURS_CONFLICT = "meet hours has conflict with existing meets";
+
 
 
 }

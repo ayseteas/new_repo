@@ -13,6 +13,7 @@ import com.project.schoolmanagment.payload.response.user.StudentResponse;
 import com.project.schoolmanagment.repository.user.UserRepository;
 import com.project.schoolmanagment.service.business.LessonProgramService;
 import com.project.schoolmanagment.service.helper.MethodHelper;
+import com.project.schoolmanagment.service.helper.PageableHelper;
 import com.project.schoolmanagment.service.validator.DateTimeValidator;
 import com.project.schoolmanagment.service.validator.UniquePropertyValidator;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class StudentService {
     private final UserRoleService userRoleService;
     private final LessonProgramService lessonProgramService;
     private final DateTimeValidator dateTimeValidator;
+    private final PageableHelper pageableHelper;
 
     public ResponseMessage<StudentResponse> saveStudent(StudentRequest studentRequest) {
         //check DB to see if the (user) advisor exist
@@ -96,18 +98,18 @@ public class StudentService {
     }
 
     public ResponseMessage<StudentResponse> updateStudentForManagers(Long id, StudentRequest studentRequest) {
-        //validate if we have this id in the DB
+        //validate if we have this id in DB
         User student = methodHelper.isUserExist(id);
-        //validate if it is a student
+        //validate if it is really a student
         methodHelper.checkRole(student, RoleType.STUDENT);
         //validate unique properties
         uniquePropertyValidator.checkUniqueProperties(student, studentRequest);
         //map DTO to user
-        User studentFromMapper = userMapper.mapStudentRequestToUpdateUser(studentRequest, id);
+        User studentFromMapper = userMapper.mapStudentRequestToUpdatedUser(studentRequest, id);
         //mapping the rest of the properties
         studentFromMapper.setPassword(passwordEncoder.encode(studentRequest.getPassword()));
-        studentFromMapper.setAdvisorTeacherId(student.getAdvisorTeacherId());
-        //we do not let the user update the student number as we do not have this prop in the studentRequest DTO
+        studentFromMapper.setAdvisorTeacherId(studentRequest.getAdvisorTeacherId());
+        //we do not let the user to update student number as we do not have this prop in studentRequest DTO
         studentFromMapper.setStudentNumber(student.getStudentNumber());
         studentFromMapper.setUserRole(userRoleService.getUserRole(RoleType.STUDENT));
         studentFromMapper.setActive(true);
@@ -118,7 +120,6 @@ public class StudentService {
                 .httpStatus(HttpStatus.OK)
                 .build();
     }
-
     public ResponseMessage<StudentResponse> addLessonProgram(HttpServletRequest request, ChooseLessonProgramWithId chooseLessonProgramWithId) {
         User student = methodHelper.isUserExistByUsername((String) request.getAttribute("username"));
 

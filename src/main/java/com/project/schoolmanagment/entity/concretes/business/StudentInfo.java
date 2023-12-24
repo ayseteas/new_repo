@@ -23,7 +23,7 @@ public class StudentInfo {
 
     private Integer absentee;
 
-    private Integer midtermExam;
+    private Double midtermExam;
 
     private Double finalExam;
 
