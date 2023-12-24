@@ -143,4 +143,10 @@ public class UserService {
         String message = SuccessMessages.USER_UPDATED;
         return ResponseEntity.ok(message);
     }
+
+
+    //Helper method for meet service
+    public List<User> findUsersByIdArray(Long[] userId){
+        return userRepository.findUsersByIdArray(userId);
+    }
 }
