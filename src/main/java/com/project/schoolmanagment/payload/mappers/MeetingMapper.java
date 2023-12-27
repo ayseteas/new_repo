@@ -34,5 +34,16 @@ public class MeetingMapper {
                 .build();
     }
 
+    public Meet mapMeetUpdateRequestToMeet(MeetingRequest request, Long meetId){
+        return Meet.builder()
+                .id(meetId)
+                .startTime(request.getStartTime())
+                .stopTime(request.getStopTime())
+                .date(request.getDate())
+                .description(request.getDescription())
+                .build();
+    }
+
+
 
 }
