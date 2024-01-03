@@ -5,6 +5,7 @@ import com.project.schoolmanagment.payload.response.abstracts.ResponseMessage;
 import com.project.schoolmanagment.payload.response.business.MeetingResponse;
 import com.project.schoolmanagment.service.business.MeetingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +53,18 @@ public class MeetingController {
                                                           @PathVariable Long meetingId,
                                                           HttpServletRequest request){
         return meetingService.updateMeeting(meetingId, meetingRequest, request);
+    }
+
+    @GetMapping("/getAllMeetByTeacher")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
+    public ResponseEntity<List<MeetingResponse>> getAllMeetByTeacher(HttpServletRequest request){
+        return meetingService.getAllMeetByTeacher(request);
+    }
+
+    @GetMapping("/getAllMeetByStudent")
+    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    public ResponseEntity<List<MeetingResponse>> getAllMeetByStudent(HttpServletRequest request){
+        return meetingService.getAllMeetByStudent(request);
     }
 
 

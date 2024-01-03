@@ -65,7 +65,4 @@ public class LessonProgramController {
     public ResponseMessage deleteLessonProgramById(@PathVariable Long id){
         return lessonProgramService.deleteLessonProgramById(id);
     }
-
-
-
 }

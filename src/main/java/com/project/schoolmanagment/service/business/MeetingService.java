@@ -18,6 +18,7 @@ import com.project.schoolmanagment.service.user.UserService;
 import com.project.schoolmanagment.service.validator.DateTimeValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -87,10 +88,10 @@ public class MeetingService {
 
             if (meet.getDate().equals(date)
                     && (
-                    (startTime.isAfter(existingStartTime) && startTime.isBefore(existingStopTime) ||
+                    startTime.isAfter(existingStartTime) && startTime.isBefore(existingStopTime) ||
                             startTime.isAfter(existingStartTime) && stopTime.isBefore(existingStopTime) ||
                             startTime.isBefore(existingStartTime) && stopTime.isAfter(existingStopTime) ||
-                            startTime.equals(existingStartTime) || stopTime.equals(existingStopTime)))) {
+                            startTime.equals(existingStartTime) || stopTime.equals(existingStopTime))) {
 
                 throw new ConflictException(ErrorMessages.MEET_HOURS_CONFLICT);
             }
@@ -110,7 +111,6 @@ public class MeetingService {
                         .httpStatus(HttpStatus.OK)
                         .object(meetingMapper.mapMeetToMeetingResponse(isMeetingExist(id)))
                         .build();
-
     }
 
     private Meet isMeetingExist(Long id){
@@ -118,7 +118,6 @@ public class MeetingService {
                 .findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException(String.format(ErrorMessages.MEET_NOT_FOUND_MESSAGE, id)));
     }
-
 
     public ResponseMessage deleteById(Long id) {
         Meet meet = isMeetingExist(id);
@@ -130,7 +129,6 @@ public class MeetingService {
     }
 
     public ResponseMessage<MeetingResponse> updateMeeting(Long meetingId, MeetingRequest meetingRequest, HttpServletRequest request) {
-
         Meet meet = isMeetingExist(meetingId);
         //validate is teacher is updating his/her own meeting
         isMeetingAssignToThisTeacher(meet,request);
@@ -173,6 +171,34 @@ public class MeetingService {
                 (meet.getAdvisoryTeacher().getAdvisorTeacherId()!=(user.getId()))){
             throw new BadRequestException(ErrorMessages.NOT_PERMITTED_METHOD_MESSAGE);
         }
+    }
+
+    public ResponseEntity<List<MeetingResponse>> getAllMeetByTeacher(HttpServletRequest request) {
+        //get username from header/attribute
+        String username = (String) request.getAttribute("username");
+        //get user from db
+        User advisorTeacher = methodHelper.isUserExistByUsername(username);
+        //validate teacher is advisor or not
+        methodHelper.checkAdvisor(advisorTeacher);
+
+        List<MeetingResponse> meetResponseList =
+                meetingRepository.findAll()
+                        .stream()
+                        .filter(x -> x.getAdvisoryTeacher().getId() == advisorTeacher.getId())
+                        .map(meetingMapper::mapMeetToMeetingResponse)
+                        .collect(Collectors.toList());
+        return ResponseEntity.ok(meetResponseList);
+    }
+
+    public ResponseEntity<List<MeetingResponse>> getAllMeetByStudent(HttpServletRequest request) {
+        String username = (String) request.getAttribute("username");
+        User student = methodHelper.isUserExistByUsername(username);
+        List<MeetingResponse> meetingResponseList =
+                meetingRepository.findByStudentList_IdEquals(student.getId())
+                        .stream()
+                        .map(meetingMapper::mapMeetToMeetingResponse)
+                        .collect(Collectors.toList());
+        return ResponseEntity.ok(meetingResponseList);
     }
 }
 

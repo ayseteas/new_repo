@@ -3,7 +3,6 @@ package com.project.schoolmanagment.controller.business;
 import com.project.schoolmanagment.entity.concretes.business.Lesson;
 import com.project.schoolmanagment.payload.request.business.LessonRequest;
 import com.project.schoolmanagment.payload.response.abstracts.ResponseMessage;
-import com.project.schoolmanagment.payload.response.business.EducationTermResponse;
 import com.project.schoolmanagment.payload.response.business.LessonResponse;
 import com.project.schoolmanagment.service.business.LessonService;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,6 @@ public class LessonController {
         return lessonService.getLessonByName(lessonName);
     }
 
-
     @GetMapping("/getLessonByPage")
     @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
     public Page<LessonResponse> getLessonByPage(
@@ -63,10 +61,6 @@ public class LessonController {
                                                        @RequestBody @Valid LessonRequest lessonRequest){
         return ResponseEntity.ok(lessonService.updateLesson(lessonId, lessonRequest));
     }
-
-
-
-
 }
 
 

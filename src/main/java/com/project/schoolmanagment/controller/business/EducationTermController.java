@@ -42,7 +42,6 @@ public class EducationTermController {
     public ResponseMessage<EducationTermResponse> updateEducationTerm(@PathVariable Long id,
                                                                      @RequestBody @Valid EducationTermRequest educationTermRequest){
         return educationTermService.updateEducationTerm(id, educationTermRequest);
-
     }
 
     @DeleteMapping("/delete/{id}")
