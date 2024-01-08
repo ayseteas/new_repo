@@ -14,9 +14,12 @@ import com.project.schoolmanagment.payload.response.abstracts.ResponseMessage;
 import com.project.schoolmanagment.payload.response.business.MeetingResponse;
 import com.project.schoolmanagment.repository.business.MeetingRepository;
 import com.project.schoolmanagment.service.helper.MethodHelper;
+import com.project.schoolmanagment.service.helper.PageableHelper;
 import com.project.schoolmanagment.service.user.UserService;
 import com.project.schoolmanagment.service.validator.DateTimeValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ public class MeetingService {
     private final MethodHelper methodHelper;
     private final DateTimeValidator dateTimeValidator;
     private final MeetingMapper meetingMapper;
+    private final PageableHelper pageableHelper;
 
     public ResponseMessage<MeetingResponse> saveMeeting(HttpServletRequest request, MeetingRequest meetingRequest) {
         String username = (String) request.getAttribute("username");
@@ -189,16 +193,46 @@ public class MeetingService {
                         .collect(Collectors.toList());
         return ResponseEntity.ok(meetResponseList);
     }
+    //TODO query does not work as expected- CHECK
+//		List<MeetingResponse>meetResponseList =
+//				meetingRepository.getByAdvisoryTeacher_IdEquals(advisorTeacher.getAdvisorTeacherId())
+//						.stream()
+//						.map(meetingMapper::mapMeetToMeetingResponse)
+//						.collect(Collectors.toList());
+//		return ResponseEntity.ok(meetResponseList);
+
 
     public ResponseEntity<List<MeetingResponse>> getAllMeetByStudent(HttpServletRequest request) {
         String username = (String) request.getAttribute("username");
         User student = methodHelper.isUserExistByUsername(username);
-        List<MeetingResponse> meetingResponseList =
+        List<MeetingResponse> meetResponseList =
                 meetingRepository.findByStudentList_IdEquals(student.getId())
                         .stream()
                         .map(meetingMapper::mapMeetToMeetingResponse)
                         .collect(Collectors.toList());
-        return ResponseEntity.ok(meetingResponseList);
+        return ResponseEntity.ok(meetResponseList);
+    }
+
+    public Page<MeetingResponse> getAllMeetByPage(int page, int size) {
+        Pageable pageable = pageableHelper.getPageableWithProperties(page, size);
+        return meetingRepository
+                .findAll(pageable)
+                .map(meetingMapper::mapMeetToMeetingResponse);
+    }
+
+    public ResponseEntity<Page<MeetingResponse>> getAllMeetByAdvisorAsPage(HttpServletRequest request, int page, int size) {
+        String username = (String) request.getAttribute("username");
+        User advisorTeacher = methodHelper.isUserExistByUsername(username);
+        methodHelper.checkAdvisor(advisorTeacher);
+        Pageable pageable = pageableHelper.getPageableWithProperties(page, size);
+
+//        return meetingRepository.findByAdvisoryTeacher_IdEquals(advisorTeacher.getId(), pageable)
+//                .map(meetingMapper::mapMeetToMeetingResponse);
+        return ResponseEntity
+                .ok(
+                        (meetingRepository.findByAdvisoryTeacher_IdEquals(advisorTeacher.getId(), pageable)
+                                .map(meetingMapper::mapMeetToMeetingResponse))
+                );
     }
 }
 
